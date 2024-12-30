@@ -1,9 +1,16 @@
 'use client';
 
 import FileUpload from './components/FileUpload';
+import { UploadResponse } from './types';
+
+type FileUploadProps = {
+    onUploadSuccess?: (data: UploadResponse) => void;
+    onUploadError?: (error: string) => void;
+}
 
 export default function Home() {
-  const handleUploadSuccess = (data: any) => {
+
+  const handleUploadSuccess = (data: UploadResponse) => {
     console.log('Upload successful: ', data);
   };
 
