@@ -2,15 +2,61 @@ import { useState } from 'react';
 import { Upload } from 'lucide-react';
 
 type FileUploadProps = {
-    onUploadSuccess?: (data: any) => void;
+    onUploadSuccess?: (data: UploadResponse) => void;
     onUploadError?: (error: string) => void;
 }
 
 type UploadResponse = {
     message: string;
-    data?: any;
+    data?: Record<string, unknown>;
     error?: string;
 }
+
+type AudioPlayerProps = {
+    chapters: {
+        id: string;
+        title: string;
+        audioUrl: string;
+    }[];
+    onReset: () => void;
+}
+
+const AudioPlayer = ({ chapters, onReset }: AudioPlayerProps) => {
+    const [currentChapter, setCurrentChapter] = useState(0);
+    const handleDownload = async (audioUrl: string, filename: string) => {
+        const response = await fetch(audioUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+    return (
+        <div className = "space-y-4">
+            {chapters.map((chapter, index) => (
+                <div key = {chapter.id} className = "border p-4 rounded">
+                    <h3 className = "font-medium mb-2">{chapter.title}</h3>
+                    <audio controls className = "w-full mb-2" src = {chapter.audioUrl} />
+                    <button
+                        onClick = {() => handleDownload(chapter.audioUrl, `${chapter.title}.mp3`)}
+                        className = "bg-blue-500 text-white px-4 py-2 rounded"
+                    >
+                        Download Audio 
+                    </button>
+                </div>
+            ))}
+            <button 
+                onClick = {onReset}
+                className = "bg-gray-500 text-white px-4 py-2 rounded"
+            >
+                Reset
+            </button>
+        </div>
+    );
+};
 
 const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
     const [file, setFile] = useState<File | null>(null);
@@ -62,7 +108,7 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
 
             const data: UploadResponse = await response.json();
             if(!response.ok) {
-                throw new Error(data.error || 'Upload failed');
+                throw new Error(data.error ?? 'Upload failed');
             }
 
             onUploadSuccess?.(data);
