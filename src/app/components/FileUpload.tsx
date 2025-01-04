@@ -22,7 +22,6 @@ type AudioPlayerProps = {
 }
 
 const AudioPlayer = ({ chapters, onReset }: AudioPlayerProps) => {
-    const [currentChapter, setCurrentChapter] = useState(0);
     const handleDownload = async (audioUrl: string, filename: string) => {
         const response = await fetch(audioUrl);
         const blob = await response.blob();
@@ -39,7 +38,9 @@ const AudioPlayer = ({ chapters, onReset }: AudioPlayerProps) => {
             {chapters.map((chapter, index) => (
                 <div key = {chapter.id} className = "border p-4 rounded">
                     <h3 className = "font-medium mb-2">{chapter.title}</h3>
-                    <audio controls className = "w-full mb-2" src = {chapter.audioUrl} />
+                    <audio controls className = "w-full mb-2" src = {chapter.audioUrl}>
+                        <track kind="captions" />
+                    </audio>
                     <button
                         onClick = {() => handleDownload(chapter.audioUrl, `${chapter.title}.mp3`)}
                         className = "bg-blue-500 text-white px-4 py-2 rounded"
