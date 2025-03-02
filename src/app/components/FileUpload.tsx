@@ -1,15 +1,10 @@
-import { useState } from 'react';
-import { Upload } from 'lucide-react';
+import {useState} from 'react';
+import {Upload} from 'lucide-react';
+import {UploadResponse} from '../types';
 
 type FileUploadProps = {
     onUploadSuccess?: (data: UploadResponse) => void;
     onUploadError?: (error: string) => void;
-}
-
-type UploadResponse = {
-    message: string;
-    data?: Record<string, unknown>;
-    error?: string;
 }
 
 type AudioPlayerProps = {
@@ -21,7 +16,7 @@ type AudioPlayerProps = {
     onReset: () => void;
 }
 
-const AudioPlayer = ({ chapters, onReset }: AudioPlayerProps) => {
+export const AudioPlayer = ({chapters, onReset}: AudioPlayerProps) => {
     const handleDownload = async (audioUrl: string, filename: string) => {
         const response = await fetch(audioUrl);
         const blob = await response.blob();
@@ -35,21 +30,21 @@ const AudioPlayer = ({ chapters, onReset }: AudioPlayerProps) => {
     };
     return (
         <div className = "space-y-4">
-            {chapters.map((chapter, index) => (
+            {chapters.map((chapter) => (
                 <div key = {chapter.id} className = "border p-4 rounded">
                     <h3 className = "font-medium mb-2">{chapter.title}</h3>
                     <audio controls className = "w-full mb-2" src = {chapter.audioUrl}>
-                        <track kind="captions" />
+                        <track kind = "captions" />
                     </audio>
                     <button
                         onClick = {() => handleDownload(chapter.audioUrl, `${chapter.title}.mp3`)}
                         className = "bg-blue-500 text-white px-4 py-2 rounded"
                     >
-                        Download Audio 
+                        Download Audio
                     </button>
                 </div>
             ))}
-            <button 
+            <button
                 onClick = {onReset}
                 className = "bg-gray-500 text-white px-4 py-2 rounded"
             >
@@ -66,35 +61,31 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0];
-
-        if(!selectedFile) return;
-
+        if (!selectedFile) return;
         const validTypes = [
             'application/pdf',
             'application/msword',
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
         ];
 
-        if(!validTypes.includes(selectedFile.type)) {
+        if (!validTypes.includes(selectedFile.type)) {
             const error = 'Please upload only PDF or Word documents';
             setError(error);
             onUploadError?.(error);
             setFile(null);
             return;
         }
-
         setError('');
         setFile(selectedFile);
     };
 
     const handleUpload = async () => {
-        if(!file) {
+        if (!file) {
             const error = 'Please select a file first';
             setError(error);
             onUploadError?.(error);
             return;
         }
-
         try {
             setLoading(true);
             setError('');
@@ -108,19 +99,19 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
             });
 
             const data: UploadResponse = await response.json();
-            if(!response.ok) {
+            if (!response.ok) {
                 throw new Error(data.error ?? 'Upload failed');
             }
 
             onUploadSuccess?.(data);
             setFile(null);
-        } catch(err) {
+        } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Failed to upload file. Please try again.';
             setError(errorMessage);
             onUploadError?.(errorMessage);
             console.error('Upload error: ', err);
         } finally {
-            setLoading(true);
+            setLoading(false);
         }
     };
 
@@ -134,7 +125,7 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
         e.stopPropagation();
 
         const droppedFile = e.dataTransfer.files[0];
-        if(droppedFile) {
+        if (droppedFile) {
             const input = document.createElement('input');
             input.type = 'file';
             input.files = e.dataTransfer.files;
@@ -149,19 +140,18 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
                 onDragOver = {handleDragOver}
                 onDrop = {handleDrop}
             >
-
                 <label
-                    htmlFor="file-upload"
-                    className="mb-4 cursor-pointer inline-flex items-center justify-center"
-                    aria-label="Upload Icon"
+                    htmlFor = "file-upload"
+                    className = "mb-4 cursor-pointer inline-flex items-center justify-center"
+                    aria-label = "Upload Icon"
                 >
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                    <Upload className = "mx-auto h-12 w-12 text-gray-400" />
                     <input
-                        id="file-upload"
-                        type="file"
-                        className="hidden"
-                        accept=".pdf, .doc, .docx"
-                        onChange={handleFileChange}
+                        id = "file-upload"
+                        type = "file"
+                        className = "hidden"
+                        accept = ".pdf, .doc, .docx"
+                        onChange = {handleFileChange}
                     />
                 </label>
 
@@ -190,11 +180,10 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
                 <button
                     onClick = {handleUpload}
                     disabled = {!file || loading}
-                    className = {`mt-4 px-4 py-2 rounded-md text-white ${
-                        !file || loading
-                        ? 'bg-gray-400 cursor-not-allowed'
-                        : 'bg-gray-400 hover:bg-blue-500'
-                    }`}
+                    className = {`mt-4 px-4 py-2 rounded-md text-white ${!file || loading
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600'
+                        }`}
                 >
                     {loading ? 'Uploading...' : 'Upload'}
                 </button>
@@ -204,4 +193,3 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
 };
 
 export default FileUpload;
-
