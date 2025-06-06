@@ -185,7 +185,7 @@ const FileUpload = ({ onUploadSuccess, onUploadError }: FileUploadProps) => {
                             : 'bg-blue-500 hover:bg-blue-600'
                         }`}
                 >
-                    {loading ? 'Uploading...' : 'Upload'}
+                    {loading ? 'Uploading...' : 'Uploaded'}
                 </button>
             </div>
         </div>
